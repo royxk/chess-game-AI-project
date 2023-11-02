@@ -10,7 +10,7 @@ This is a Chess game built using python with pygame module for GUI. It has 2 pla
 
 Inorder to model a chessboard within a data structure a 2D array was used with the dimensions of 8x8. The chessboard array could store 64 gametiles objects and each gametile object stored a tile number and a chess piece object.
 
-## Files Description:
+## Files Description:                                                                                
 
 1. **Board Directory**: 
       - Board.py: In this file we create a class of chessBoard and initialize and declare a 2D array of gametiles with null pieces and then place all the chess pieces on the board on their respective starting positions. 
