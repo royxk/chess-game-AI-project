@@ -250,47 +250,98 @@ class AI:
         return arr
 
 
-    def calculateb(self,gametiles):
-        value=0
+    # def calculateb(self,gametiles):
+        
+    #     value=0
+    #     for x in range(8):
+    #         for y in range(8):
+    #                 if gametiles[y][x].pieceonTile.tostring()=='P':
+    #                     value=value-100
+
+    #                 if gametiles[y][x].pieceonTile.tostring()=='N':
+    #                     value=value-350
+
+    #                 if gametiles[y][x].pieceonTile.tostring()=='B':
+    #                     value=value-350
+
+    #                 if gametiles[y][x].pieceonTile.tostring()=='R':
+    #                     value=value-525
+
+    #                 if gametiles[y][x].pieceonTile.tostring()=='Q':
+    #                     value=value-1000
+
+    #                 if gametiles[y][x].pieceonTile.tostring()=='K':
+    #                     value=value-10000
+
+    #                 if gametiles[y][x].pieceonTile.tostring()=='p':
+    #                     value=value+100
+
+    #                 if gametiles[y][x].pieceonTile.tostring()=='n':
+    #                     value=value+350
+
+    #                 if gametiles[y][x].pieceonTile.tostring()=='b':
+    #                     value=value+350
+
+    #                 if gametiles[y][x].pieceonTile.tostring()=='r':
+    #                     value=value+525
+
+    #                 if gametiles[y][x].pieceonTile.tostring()=='q':
+    #                     value=value+1000
+
+    #                 if gametiles[y][x].pieceonTile.tostring()=='k':
+    #                     value=value+10000
+
+    #     return value
+    
+    def calculateb(self, gametiles):
+        King, king = (0, 0), (0, 0)
+        endgame = False  # A simple flag to detect endgame phase
+
+        # First pass to find the kings' positions and check for endgame condition
+        pawn_count = 0
         for x in range(8):
             for y in range(8):
-                    if gametiles[y][x].pieceonTile.tostring()=='P':
-                        value=value-100
+                piece = gametiles[y][x].pieceonTile.tostring()
+                if piece == 'K':
+                    King = (y, x)
+                elif piece == 'k':
+                    king = (y, x)
+                elif piece.lower() == 'p':
+                    pawn_count += 1
 
-                    if gametiles[y][x].pieceonTile.tostring()=='N':
-                        value=value-350
+        if pawn_count <= 6:  # Simple condition, can be more complex based on the position
+            endgame = True
 
-                    if gametiles[y][x].pieceonTile.tostring()=='B':
-                        value=value-350
+        value = 0
+        piece_value = {"p": 100, "n": 320, "b": 330, "r": 500, "q": 900, "k": 20000 if endgame else 10000}
+        for x in range(8):
+            for y in range(8):
+                piece = gametiles[y][x].pieceonTile.tostring().lower()
+                if piece in piece_value:  # Check if the piece is a valid chess piece
+                    dist_King = (y - King[0])**2 + (x - King[1])**2
+                    dist_king = (y - king[0])**2 + (x - king[1])**2
+                    if piece.isupper():  # If piece is Black
+                        dist = dist_king
+                        modifier = -1
+                    else:               # If piece is White
+                        dist = dist_King
+                        modifier = 1
 
-                    if gametiles[y][x].pieceonTile.tostring()=='R':
-                        value=value-525
+                
+                    value += modifier * piece_value[piece.lower()] * (1 + 0.1/(dist + 1))  # Adjust value based on distance
+                    
+                    # Adding central control bonus for non-pawn pieces
+                    if piece != 'p':
+                        center_control_bonus = max(0, 2 - max(abs(3.5 - x), abs(3.5 - y)))
+                        value += modifier * center_control_bonus * 10
 
-                    if gametiles[y][x].pieceonTile.tostring()=='Q':
-                        value=value-1000
-
-                    if gametiles[y][x].pieceonTile.tostring()=='K':
-                        value=value-10000
-
-                    if gametiles[y][x].pieceonTile.tostring()=='p':
-                        value=value+100
-
-                    if gametiles[y][x].pieceonTile.tostring()=='n':
-                        value=value+350
-
-                    if gametiles[y][x].pieceonTile.tostring()=='b':
-                        value=value+350
-
-                    if gametiles[y][x].pieceonTile.tostring()=='r':
-                        value=value+525
-
-                    if gametiles[y][x].pieceonTile.tostring()=='q':
-                        value=value+1000
-
-                    if gametiles[y][x].pieceonTile.tostring()=='k':
-                        value=value+10000
+                # Adding central control bonus for non-pawn pieces
+                if piece.lower() in ['n', 'b', 'r', 'q', 'k']:
+                    center_control_bonus = max(0, 2 - max(abs(3.5 - x), abs(3.5 - y)))  # Bonus for pieces closer to the center
+                    value += modifier * center_control_bonus * 10
 
         return value
+
 
 
     def move(self,gametiles,y,x,n,m):
